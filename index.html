@@ -85,7 +85,7 @@ details.shop[open] .chev{transform:rotate(90deg)}
 .sugbox table{font-size:14px}.sugbox td{border-bottom:1px solid var(--line);padding:5px 2px}.sugbox tr:last-child td{border-bottom:0}
 .tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:5px;margin-right:4px}
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 nav.tabs button{border:0;background:transparent;color:var(--muted);font:600 12px var(--font-body);padding:10px 4px 12px;cursor:pointer;display:grid;justify-items:center;gap:3px}
 nav.tabs button svg{width:22px;height:22px}
 nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
@@ -113,6 +113,7 @@ input.pw{width:100%;font:600 18px var(--font-body);letter-spacing:.15em;padding:
 <nav class="tabs" id="tabs" hidden><div class="in" role="tablist">
   <button role="tab" data-v="home" id="tb-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span></span></button>
   <button role="tab" data-v="route" id="tb-route"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/></svg><span></span></button>
+  <button role="tab" data-v="merch" id="tb-merch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 3v18M20 3v18M4 8h16M4 14h16M4 20h16"/><rect x="7" y="9.5" width="3" height="3.5"/><rect x="12" y="9.5" width="3" height="3.5"/><rect x="8" y="15.5" width="3" height="3.5"/></svg><span></span></button>
   <button role="tab" data-v="stock" id="tb-stock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4zM3 7v10l9 4 9-4V7M12 11v10"/></svg><span></span></button>
 </div></nav>
 
@@ -137,6 +138,8 @@ const T = {
    obperf:'OB performance',tgone:'waqt guzra',month:'Mahina',towns:'Towns',reqd:'Chahiye',gap:'Gap',sel:'Chunein',tapob:'OB par tap karein',back:'Wapis list',
    onlyyou:'Sirf aap ke apne figures. Rank mein town ke top 2 dikhte hain.',zero:'Zero purchase',allroutes:'Sab routes',nosugg:'Koi suggestion nahi: shop ka target poora ho chuka, ya stock nahi.',how:'Ye kaise bana?',plan:'Booking plan',sugg:'Suggested',box:'box',covered:'zaroorat poori',focusb:'In brands par zor',nostock:'Book na karein (stock nahi)',sugnote:'Suggested order = har item mein shop ka town target ka hissa, minus is mahine ki kharidari, baqi visits par taqseem; normal visit ka 1.5 guna aur shop ke sab se bare bill se zyada nahi; jis item ka stock 0.2 din se kam ho wo chhor diya.',copyplan:'WhatsApp ke liye plan copy karein',copied:'Copy ho gaya',copyfail:'Copy nahi hua',now6:'Abhi roz (6 din)',mavg:'Mahina avg',bisconly:'Sirf Biscuit',cakeonly:'Sirf Cake',bytgt:'Brand-wise target',daysleft:'selling din baqi',needc:'Roz<br>chahiye',nowc:'Abhi<br>roz',tgtnote:'Roz chahiye = (target − sale) ÷ baqi din. Abhi roz = aakhri 6 selling din (bara) aur mahine ki average (chhota); ▲/▼ = aakhri 6 din mahine ki average se upar/neeche. Brand par tap karein: packs khulenge.',never:'kabhi nahi (Jul se)',fromyou:'aap se',tapdet:'Box par tap karein: brand aur pack ki detail khulegi.',planned:'Planned calls',prodc:'Productive (PJP din par)',callsw:'Calls jin mein liya',cpb:'Call prod',strike:'Productive calls mein se',cpnote:'Brand call prod = PJP din ke wo bills jin mein ye brand tha ÷ planned calls. Brand par tap karein: packs khulenge.',upnote:'PJP ki shops jinhon ne is mahine liya ÷ saari PJP shops. Aakhri column = pichhle 3 mahine mein lene wali shops. Brand par tap karein: packs khulenge.',lostnote:'Pichhle 60 din mein order diya, phir aakhri 2+ route visits par nahi',zeronote:'PJP shops jinhon ne is mahine aap ko order nahi diya',risk:'Inki normal kharidari',usedto:'Leti thi (Ctn/mahina)',nohist:'Pichhle 3 mahine mein kuch nahi liya',div:'Business division',divs:'Division',salec:'Sale',shopsc:'Shops',bisc:'Biscuit',total:'Total',divnote:'Biscuit = Core + VAB biscuit. Shops = PJP ki wo shops jinhon ne is mahine is group mein se kuch liya.',zerohint:'Brand (aur pack) chunein: wo shops nazar aayengi jinhon ne is mahine ye nahi liya. Poore PJP ke liye Sab routes chunein, ya aik din.',zeron:'shops ne is mahine nahi liya',notbought:'Nahi liya',before:'Pehle leti thi',clear:'Hatayein',retail:'Retail',ws:'WS',rk:'Rank',pw:'Password',remember:'Is phone par yaad rakhein',wrongpw:'Ghalat password. Dobara likhein.',opening:'Khul raha hai…',pwnote:'Har shakhs ka apna password hai. Sirf aap ka apna data khulega.',nocrypto:'Ye browser app nahi khol sakta. Chrome mein kholein.',signin:'Login',uid:'User ID',badid:'Ye ID nahi mila. Apna code check karein.',idnote:'OB: apna OB code (jaise D0651OB7) · Distributor: town code (jaise D0651) · TSM: TSM-DGK / TSM-LYH / TSM-MZG. Password: EBM + aap ke 4 hindse.'}
 };
+Object.assign(T.en,{merch:'Merchandising',mtop:'Top 5 shops of this route',mnote:'Top 5 retail shops on this route by purchase in the last 3 weeks. Do the checklist, take a shelf photo and send the report to your TSM.',m3w:'Last 3 weeks',perwk:'Ctn/week',shelf:'Should be on the shelf',inshelf:'bought this month',notinshelf:'not bought this month',chk:['EBM gets its shelf space','Sooper / Rio facing front','Price tag / POSM in place','Expiry checked','Shelf photo taken'],mcopy:'Copy report for WhatsApp',mdone:'done',mlegend:'Green = bought this month · Yellow = used to buy, not this month',mrep:'Merchandising report'});
+Object.assign(T.ru,{merch:'Merchandising',mtop:'Is route ki top 5 shops',mnote:'Is route ki 5 sab se bari retail shops (pichle 3 hafton ki kharidari). Checklist karein, shelf ki photo lein aur report TSM ko bhejein.',m3w:'Pichle 3 hafte',perwk:'Ctn/hafta',shelf:'Shelf par hona chahiye',inshelf:'is mahine liya',notinshelf:'is mahine nahi liya',chk:['EBM ko shelf par jagah mili','Sooper / Rio samne (front facing)','Price tag / POSM laga','Expiry check ki','Shelf ki photo li'],mcopy:'WhatsApp ke liye report copy karein',mdone:'mukammal',mlegend:'Hara = is mahine liya · Peela = pehle leta tha, is mahine nahi',mrep:'Merchandising report'});
 const store = { get(k){try{return JSON.parse(localStorage.getItem('dgkteam_'+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem('dgkteam_'+k,JSON.stringify(v))}catch(e){}} };
 let ENC=null, UNL=false, LOGERR='', D=null, L=store.get('lang')||'ru', U=store.get('user'), V='home', DET=null, DB='', TGG='', HG=store.get('hg')||'', GRP='', SEL={b:'',p:''}, ZB={b:'',p:''}, DAY=null, OPENOB=null;
 const t=k=>T[L][k]??k;
@@ -188,7 +191,7 @@ function render(){
   const nm = U.r==='ob'? D.obs[U.c].n+' · '+D.towns[D.obs[U.c].d].n : U.r==='dist'? D.towns[U.c].n+' · '+t('dist') : U.c+' · TSM';
   $('#nm').textContent = nm;
   $('#sub').textContent = `${t('data')} ${D.meta.last} · ${pc(D.meta.TG)} ${t('tgone')}`;
-  (({home:viewHome,brands:viewHome,route:viewRoute,stock:viewStock})[V]||viewHome)();
+  (({home:viewHome,brands:viewHome,route:viewRoute,stock:viewStock,merch:viewMerch})[V]||viewHome)();
 }
 function validUser(){ return U && (U.r==='ob'?!!D.obs[U.c]:U.r==='dist'?!!D.towns[U.c]:['DG Khan','Layyah','Muzaffargarh'].includes(U.c)); }
 
@@ -514,6 +517,42 @@ function planCard(c,rows,pd){
 let PLANTXT='';
 const fmtD=d=>d.toLocaleDateString(L==='en'?'en-GB':'en-GB',{weekday:'short',day:'2-digit',month:'short'});
 const abbr=p=>({'Family Pack':'FP','Half Roll':'HR','Snack Pack':'SP','Munch Pack':'MP','Ticky Pack':'TP','Jumbo Pack':'Jumbo'})[p]||p;
+
+
+// ---------- merchandising: top 5 retail shops of the route (last 3 weeks purchase) ----------
+let MCHK=store.get('mchk')||{};
+function viewMerch(){
+  const list = OPENOB?[OPENOB]: U.r==='ob'?[U.c]:null;
+  if(!list){
+    $('#main').innerHTML=`<div class="card"><h2>${t('merch')}</h2><p class="note">${t('tapob')}</p><div class="tw"><table><tr><th>OB</th><th>${t('town')}</th></tr>`+
+      scopeOBs().map(c=>`<tr class="click" data-ob="${c}"><td class="nm">${esc(D.obs[c].n)}</td><td>${D.towns[D.obs[c].d].n}</td></tr>`).join('')+`</table></div></div>`;
+    document.querySelectorAll('tr[data-ob]').forEach(r=>r.onclick=()=>{OPENOB=r.dataset.ob;render();window.scrollTo(0,0)}); return;
+  }
+  const c=list[0]; if(DAY===null||DAY===-1) DAY=todayWD();
+  const all=D.shops[c]||[]; const daysUsed=[...new Set(all.flatMap(x=>x[3]))].sort();
+  const top=all.filter(x=>x[3].includes(DAY)&&x[4]==='R').sort((a,b)=>((b[15]||0)-(a[15]||0))||((b[7]||0)-(a[7]||0))).slice(0,5);
+  const pd_=planDate(DAY); const dk=pd_.toISOString().slice(0,10);
+  const brandsOf=x=>{const h={};Object.entries(x[9]).forEach(([k,v])=>{const b=D.keys[k][0];h[b]=(h[b]||0)+v});const m=new Set(Object.keys(x[8]).map(k=>D.keys[k][0]));
+    return Object.entries(h).sort((a,b)=>b[1]-a[1]).slice(0,8).map(([b])=>({b,m:m.has(b)}))};
+  const ck=(x,i)=>!!(MCHK[dk+'|'+c+'|'+x[0]]||[])[i];
+  const cards=top.map((x,n)=>{const br=brandsOf(x); const done=t('chk').filter((_,i)=>ck(x,i)).length;
+    return `<div class="card"><div class="shop" style="border:0;padding:0"><div class="t"><b>${n+1}. ${esc(x[1])}</b><span class="tag n">${t('retail')} ${x[5]}</span><span class="pill ${done===5?'g':done?'y':'n'}">${done}/5</span></div>
+     <div class="m">${t('m3w')}: <b>${f1(x[15])}</b> ${t('perwk')} · ${t('avgm')}: ${f1(x[7])} · ${lastTxt(x)}</div>
+     <div class="m" style="margin-top:6px"><b>${t('shelf')}:</b></div><div class="t2">${br.map(z=>`<span class="pill ${z.m?'g':'y'}" style="margin:2px 2px 0 0">${esc(z.b)}</span>`).join('')||`<span class="note">${t('nohist')}</span>`}</div>
+     <div style="display:grid;gap:6px;margin-top:10px">${t('chk').map((l,i)=>`<label class="chk" style="color:var(--fg);font-size:14px"><input type="checkbox" data-mk="${x[0]}" data-i="${i}" ${ck(x,i)?'checked':''}> ${l}</label>`).join('')}</div></div></div>`}).join('');
+  $('#main').innerHTML=`${OPENOB?`<button class="chip" id="bk">← ${t('back')} · ${esc(D.obs[OPENOB].n)}</button>`:''}
+   <div class="card"><h2>${t('mtop')}</h2><div class="chips">${daysUsed.map(d=>`<button class="chip" data-d="${d}" aria-pressed="${d===DAY}">${t('day')[d]}</button>`).join('')}</div>
+   <p class="note">${t('mnote')}</p><p class="note">${t('mlegend')}</p><button class="chip" id="m-cp" style="margin-top:8px">${t('mcopy')}</button></div>
+   ${cards||`<div class="card empty">${t('none')}</div>`}`;
+  document.querySelectorAll('input[data-mk]').forEach(b=>b.onchange=e=>{const key=dk+'|'+c+'|'+e.target.dataset.mk;const a=MCHK[key]||[0,0,0,0,0];a[+e.target.dataset.i]=e.target.checked?1:0;MCHK[key]=a;
+    Object.keys(MCHK).forEach(k=>{if(k.slice(0,10)<new Date(Date.now()-7*864e5).toISOString().slice(0,10))delete MCHK[k]});store.set('mchk',MCHK);render()});
+  document.querySelectorAll('.chip[data-d]').forEach(b=>b.onclick=()=>{DAY=+b.dataset.d;render()});
+  if($('#bk')) $('#bk').onclick=()=>{OPENOB=null;render()};
+  $('#m-cp').onclick=e=>{const b=e.target;
+    const txt=`${t('mrep')} · ${D.obs[c].n} (${c}) · ${D.towns[D.obs[c].d].n} · ${fmtD(pd_)}\n`+top.map((x,n)=>{const br=brandsOf(x).filter(z=>!z.m).map(z=>z.b);
+      return `${n+1}. ${x[1]}: `+t('chk').map((l,i)=>(ck(x,i)?'✅ ':'❌ ')+l).join(' | ')+(br.length?`\n   ${t('notinshelf')}: ${br.join(', ')}`:'')}).join('\n');
+    navigator.clipboard.writeText(txt).then(()=>{b.textContent=t('copied')}).catch(()=>{b.textContent=t('copyfail')})};
+}
 
 function viewStock(){
   const towns=OPENOB?[D.obs[OPENOB].d]:scopeTowns();
