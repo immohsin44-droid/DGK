@@ -1,0 +1,533 @@
+<title>DGK Team App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one-column phone app, sticky top bar + bottom tab bar; cards only for the summary and lists. */
+:root{
+  --bg:#e7ebf2; --surface:#f7f8fb; --fg:#141d2e; --muted:#56627a; --line:#d2d9e5; --accent:#1b2b4b; --accent-soft:#dde3ee; --tile:#edf0f6;
+  --hdr:#1b2b4b; --hdr-fg:#ffffff; --hdr-sub:rgba(255,255,255,.78); --hdr-line:rgba(255,255,255,.45);
+  --good:#1d7a3d; --good-bg:#dcf1e2; --warn:#8a6100; --warn-bg:#fbefc4; --bad:#b3321b; --bad-bg:#f9dcd3;
+  --font-body:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --font-head:"Space Grotesk",Inter,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1622; --surface:#172131; --fg:#e7ecf4; --muted:#9aa7bb; --line:#2a3647; --accent:#9db4e0; --accent-soft:#1d2c46; --tile:#121b29; --hdr:#1b2b4b;
+  --good:#6fd18f; --good-bg:#17361f; --warn:#f1c75a; --warn-bg:#3a2f10; --bad:#ff8f78; --bad-bg:#3d1c15; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1622; --surface:#172131; --fg:#e7ecf4; --muted:#9aa7bb; --line:#2a3647; --accent:#9db4e0; --accent-soft:#1d2c46; --tile:#121b29; --hdr:#1b2b4b;
+  --good:#6fd18f; --good-bg:#17361f; --warn:#f1c75a; --warn-bg:#3a2f10; --bad:#ff8f78; --bad-bg:#3d1c15; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:15px;line-height:1.4;padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--hdr)}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px;display:grid;gap:14px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--hdr);color:var(--hdr-fg)}
+header .in{max-width:640px;margin:0 auto;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:10px}
+header h1{font-family:var(--font-head);font-size:17px;margin:0;line-height:1.15;min-width:0;flex:1}
+header h1 small{display:block;font-family:var(--font-body);font-weight:500;font-size:12px;color:var(--hdr-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sp{flex:1}
+header h1 .brand{display:block;font:700 10.5px var(--font-body);letter-spacing:.14em;text-transform:uppercase;color:var(--hdr-sub);margin-bottom:2px}
+header h1 #nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lang{display:flex;border:1px solid var(--hdr-line);border-radius:8px;overflow:hidden}
+.lang{flex:none}.lang button{border:0;background:transparent;color:var(--hdr-sub);font:600 12px var(--font-body);padding:6px 8px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:#fff;color:var(--hdr)}
+.iconbtn{flex:none;border:1px solid var(--hdr-line);background:transparent;color:var(--hdr-fg);border-radius:8px;padding:6px 9px;font:600 12px var(--font-body);cursor:pointer}
+button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+h2{font-family:var(--font-head);font-size:16px;margin:0 0 8px}
+.note{color:var(--muted);font-size:12.5px;margin:4px 0 0}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{background:var(--tile);border-radius:10px;padding:10px}
+.kpi .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.kpi .v{font-family:var(--font-head);font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.kpi .s{font-size:12px;color:var(--muted)}
+button.kpi{border:1px solid var(--line);text-align:left;font:inherit;color:inherit;cursor:pointer;display:block;width:100%}
+button.kpi .go{float:right;color:var(--accent);font-weight:700}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:700;font-size:12.5px;font-variant-numeric:tabular-nums}
+.g{background:var(--good-bg);color:var(--good)} .y{background:var(--warn-bg);color:var(--warn)} .r{background:var(--bad-bg);color:var(--bad)} .n{background:var(--bg);color:var(--muted)}
+.bar{height:8px;background:var(--line);border-radius:4px;position:relative;margin-top:8px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--accent)}
+.bar b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--fg)}
+.rank{display:grid;gap:8px}
+.rk{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;background:var(--bg)}
+.rk .no{font-family:var(--font-head);font-weight:700;font-size:18px;width:30px;text-align:center}
+.rk.me{outline:2px solid var(--accent);background:var(--accent-soft)}
+.rk .nm{flex:1;min-width:0;font-weight:600}
+label.f{display:grid;gap:4px;font-size:12px;color:var(--muted);font-weight:600}
+select{width:100%;font:500 15px var(--font-body);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th{text-align:right;color:var(--muted);font-weight:600;font-size:11.5px;padding:6px 6px;border-bottom:1.5px solid var(--line);white-space:nowrap}
+td{text-align:right;padding:7px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td.nm{white-space:normal;min-width:120px}
+tr.click{cursor:pointer}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:999px;padding:6px 12px;font:600 13px var(--font-body);white-space:nowrap;cursor:pointer}
+.wrap>.chip{justify-self:start}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+.shop{padding:10px 0;border-bottom:1px solid var(--line);display:grid;gap:4px}
+.shop:last-child{border-bottom:0}
+.shop .t{display:flex;gap:8px;align-items:baseline}
+.shop .t b{flex:1;min-width:0}
+.shop .m{font-size:12.5px;color:var(--muted)}
+details.shop>summary{list-style:none;cursor:pointer;display:grid;gap:4px}
+details.shop>summary::-webkit-details-marker{display:none}
+.shop .chev{color:var(--accent);font-weight:700;font-size:18px;line-height:1;transition:transform .15s}
+details.shop[open] .chev{transform:rotate(90deg)}
+.shop .t2{display:flex;flex-wrap:wrap;gap:2px}
+.sugbox{background:var(--good-bg);border-radius:10px;padding:8px 10px;margin-top:6px}
+.sugbox .l{font-size:11.5px;font-weight:700;color:var(--good);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.sugbox table{font-size:14px}.sugbox td{border-bottom:1px solid var(--line);padding:5px 2px}.sugbox tr:last-child td{border-bottom:0}
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:1px 6px;border-radius:5px;margin-right:4px}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{border:0;background:transparent;color:var(--muted);font:600 12px var(--font-body);padding:10px 4px 12px;cursor:pointer;display:grid;justify-items:center;gap:3px}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button[aria-selected="true"]{color:var(--accent);background:var(--accent-soft)}
+.login{display:grid;gap:12px}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.role{border:1.5px solid var(--line);background:var(--surface);color:var(--fg);border-radius:12px;padding:14px 6px;font:700 14px var(--font-body);cursor:pointer}
+.role[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft)}
+.primary{border:0;background:var(--accent);color:#fff;font:700 16px var(--font-body);padding:13px;border-radius:12px;cursor:pointer}
+.primary:disabled{opacity:.45}
+input.pw{width:100%;font:600 18px var(--font-body);letter-spacing:.15em;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--fg)}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.err{color:var(--bad);font-weight:600;font-size:13px;margin:0}
+.empty{color:var(--muted);text-align:center;padding:18px 6px}
+.stk-r td:nth-child(3){font-weight:700}
+@media (max-width:380px){.big{grid-template-columns:1fr 1fr}.kpi .v{font-size:19px}}
+@media (prefers-reduced-motion:no-preference){.chip,.role,nav.tabs button{transition:background .15s,color .15s}}
+</style>
+
+<header><div class="in">
+  <h1 id="ttl"><span class="brand">EBM · DG Khan Area</span><span id="nm">DGK Team</span><small id="sub">Loading…</small></h1>
+  <div class="lang" role="group" aria-label="Language"><button id="lg-en" type="button">EN</button><button id="lg-ru" type="button">Urdu</button></div>
+  <button class="iconbtn" id="who" type="button" hidden></button>
+</div></header>
+<main class="wrap" id="main"><div class="card empty">Loading…</div></main>
+<nav class="tabs" id="tabs" hidden><div class="in" role="tablist">
+  <button role="tab" data-v="home" id="tb-home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span></span></button>
+  <button role="tab" data-v="route" id="tb-route"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.5 6H15a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h6.5"/></svg><span></span></button>
+  <button role="tab" data-v="stock" id="tb-stock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4zM3 7v10l9 4 9-4V7M12 11v10"/></svg><span></span></button>
+</div></nav>
+
+<script>
+const T = {
+ en:{home:'Home',brands:'Brands',route:'Route',stock:'Stock',who:'Who are you?',ob:'Order Booker',tsm:'TSM',dist:'Distributor',town:'Town',terr:'Territory',
+   pickob:'Select your name',start:'Open',change:'Change',target:'Target',sale:'Sale to date',ach:'Achievement',index:'Index vs time',need:'Need / day',now:'Now / day',
+   rank:'Rank in town',of:'of',top:'Top OBs in your town',you:'You',callp:'Call productivity',uniq:'Unique productivity',shops:'PJP shops',billed:'Billed shops',
+   brand:'Brand',pack:'Pack',all:'All',allb:'All brands',allp:'All packs',outlets:'Shops buying',pen:'Penetration',prev:'same days',growth:'Growth',
+   packs:'Packs of this brand',notbuy:'Shops on your route not buying this yet',notbuyn:'bought it in',avgm:'avg/month',lastord:'last order',none:'Nothing here',
+   today:'Today’s route',day:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],wapis:'Win back',lost:'Lost',pitch:'Pitch',mtd:'MTD',noorder:'no order this month',
+   stockt:'Distributor stock',days:'days',out:'Out of stock',low:'Under 2 days',ok:'OK',ctn:'Ctn',data:'Data till',stk:'stock',obs:'Order bookers',
+   obperf:'OB performance',tgone:'time gone',month:'Month',towns:'Towns',reqd:'Required',gap:'Gap',sel:'Select',tapob:'Tap an OB to open it',back:'Back to list',
+   onlyyou:'Only your own figures are shown. Ranks show the top 2 of your town.',zero:'Zero purchase',allroutes:'All routes',nosugg:'No suggestion: target for this shop is already met, or no stock.',how:'How is this worked out?',plan:'Booking plan',sugg:'Suggested',box:'box',covered:'of need covered',focusb:'Push these brands',nostock:'Do not book (no stock)',sugnote:'Suggested order = shop’s share of the town target for each item, minus what it already bought this month, spread over its visits left this month; capped at 1.5× its normal visit and its biggest bill; items with under 0.2 day of stock are skipped.',copyplan:'Copy plan for WhatsApp',copied:'Copied',copyfail:'Copy failed, select the text',now6:'Now/day (6 days)',mavg:'Month avg',bisconly:'Biscuit only',cakeonly:'Cake only',bytgt:'Target by brand',daysleft:'selling days left',needc:'Need<br>/day',nowc:'Avg<br>/day',tgtnote:'Need/day = (target − sale) ÷ selling days left. Avg/day = last 6 selling days (big) and month average (small); ▲/▼ = last 6 days above/below the month average. Tap a brand for its packs.',never:'never (Jul–now)',fromyou:'from you',tapdet:'Tap a box for brand and pack detail.',planned:'Planned calls',prodc:'Productive (on PJP day)',callsw:'Calls with it',cpb:'Call prod',strike:'Of productive calls',cpnote:'Brand call prod = PJP-day bills that had this brand ÷ planned calls. Tap a brand for its packs.',upnote:'Shops on your PJP that bought it this month ÷ all PJP shops. Last column = shops that bought it in the last 3 months. Tap a brand for its packs.',lostnote:'Ordered in the last 60 days, then missed the last 2+ route visits',zeronote:'PJP shops with no order from you this month',risk:'Their normal buying',usedto:'Used to buy (Ctn/month)',nohist:'No purchase in the last 3 months',div:'Business division',divs:'Division',salec:'Sale',shopsc:'Shops',bisc:'Biscuit',total:'Total',divnote:'Biscuit = Core + VAB biscuits. Shops = shops on the PJP that bought anything in that group this month.',zerohint:'Pick a brand (and pack) to see which shops have not bought it this month. Choose All routes for your whole PJP, or a day for one route.',zeron:'shops have not bought it this month',notbought:'Not bought',before:'Bought before',clear:'Clear',retail:'Retail',ws:'WS',rk:'Rank',pw:'Password',remember:'Remember on this phone',wrongpw:'Wrong password. Try again.',opening:'Opening…',pwnote:'Each person has their own password. Only your own data opens.',nocrypto:'This browser cannot open the app. Open it in Chrome.'},
+ ru:{home:'Home',brands:'Brands',route:'Route',stock:'Stock',who:'Aap kaun hain?',ob:'Order Booker',tsm:'TSM',dist:'Distributor',town:'Town',terr:'Territory',
+   pickob:'Apna naam chunein',start:'Kholein',change:'Badlein',target:'Target',sale:'Ab tak sale',ach:'Achievement',index:'Index (waqt ke muqable)',need:'Roz chahiye',now:'Abhi roz',
+   rank:'Town mein rank',of:'mein se',top:'Aap ke town ke top OBs',you:'Aap',callp:'Call productivity',uniq:'Unique productivity',shops:'PJP shops',billed:'Bill wali shops',
+   brand:'Brand',pack:'Pack',all:'Sab',allb:'Sab brands',allp:'Sab packs',outlets:'Lene wali shops',pen:'Penetration',prev:'same din',growth:'Farq',
+   packs:'Is brand ke packs',notbuy:'Aap ke route ki shops jo abhi nahi le rahin',notbuyn:'pehle leti thi',avgm:'avg/mahina',lastord:'aakhri order',none:'Kuch nahi',
+   today:'Route',day:['Peer','Mangal','Budh','Jumerat','Jumma','Hafta','Itwar'],wapis:'Wapis lao',lost:'Lost',pitch:'Pitch karo',mtd:'Is mahine',noorder:'is mahine order nahi',
+   stockt:'Distributor ka stock',days:'din',out:'Stock khatam',low:'2 din se kam',ok:'Theek',ctn:'Ctn',data:'Data',stk:'stock',obs:'Order bookers',
+   obperf:'OB performance',tgone:'waqt guzra',month:'Mahina',towns:'Towns',reqd:'Chahiye',gap:'Gap',sel:'Chunein',tapob:'OB par tap karein',back:'Wapis list',
+   onlyyou:'Sirf aap ke apne figures. Rank mein town ke top 2 dikhte hain.',zero:'Zero purchase',allroutes:'Sab routes',nosugg:'Koi suggestion nahi: shop ka target poora ho chuka, ya stock nahi.',how:'Ye kaise bana?',plan:'Booking plan',sugg:'Suggested',box:'box',covered:'zaroorat poori',focusb:'In brands par zor',nostock:'Book na karein (stock nahi)',sugnote:'Suggested order = har item mein shop ka town target ka hissa, minus is mahine ki kharidari, baqi visits par taqseem; normal visit ka 1.5 guna aur shop ke sab se bare bill se zyada nahi; jis item ka stock 0.2 din se kam ho wo chhor diya.',copyplan:'WhatsApp ke liye plan copy karein',copied:'Copy ho gaya',copyfail:'Copy nahi hua',now6:'Abhi roz (6 din)',mavg:'Mahina avg',bisconly:'Sirf Biscuit',cakeonly:'Sirf Cake',bytgt:'Brand-wise target',daysleft:'selling din baqi',needc:'Roz<br>chahiye',nowc:'Abhi<br>roz',tgtnote:'Roz chahiye = (target − sale) ÷ baqi din. Abhi roz = aakhri 6 selling din (bara) aur mahine ki average (chhota); ▲/▼ = aakhri 6 din mahine ki average se upar/neeche. Brand par tap karein: packs khulenge.',never:'kabhi nahi (Jul se)',fromyou:'aap se',tapdet:'Box par tap karein: brand aur pack ki detail khulegi.',planned:'Planned calls',prodc:'Productive (PJP din par)',callsw:'Calls jin mein liya',cpb:'Call prod',strike:'Productive calls mein se',cpnote:'Brand call prod = PJP din ke wo bills jin mein ye brand tha ÷ planned calls. Brand par tap karein: packs khulenge.',upnote:'PJP ki shops jinhon ne is mahine liya ÷ saari PJP shops. Aakhri column = pichhle 3 mahine mein lene wali shops. Brand par tap karein: packs khulenge.',lostnote:'Pichhle 60 din mein order diya, phir aakhri 2+ route visits par nahi',zeronote:'PJP shops jinhon ne is mahine aap ko order nahi diya',risk:'Inki normal kharidari',usedto:'Leti thi (Ctn/mahina)',nohist:'Pichhle 3 mahine mein kuch nahi liya',div:'Business division',divs:'Division',salec:'Sale',shopsc:'Shops',bisc:'Biscuit',total:'Total',divnote:'Biscuit = Core + VAB biscuit. Shops = PJP ki wo shops jinhon ne is mahine is group mein se kuch liya.',zerohint:'Brand (aur pack) chunein: wo shops nazar aayengi jinhon ne is mahine ye nahi liya. Poore PJP ke liye Sab routes chunein, ya aik din.',zeron:'shops ne is mahine nahi liya',notbought:'Nahi liya',before:'Pehle leti thi',clear:'Hatayein',retail:'Retail',ws:'WS',rk:'Rank',pw:'Password',remember:'Is phone par yaad rakhein',wrongpw:'Ghalat password. Dobara likhein.',opening:'Khul raha hai…',pwnote:'Har shakhs ka apna password hai. Sirf aap ka apna data khulega.',nocrypto:'Ye browser app nahi khol sakta. Chrome mein kholein.'}
+};
+const store = { get(k){try{return JSON.parse(localStorage.getItem('dgkteam_'+k))}catch(e){return null}}, set(k,v){try{localStorage.setItem('dgkteam_'+k,JSON.stringify(v))}catch(e){}} };
+let ENC=null, UNL=false, LOGERR='', D=null, L=store.get('lang')||'ru', U=store.get('user'), V='home', DET=null, DB='', TGG='', HG=store.get('hg')||'', GRP='', SEL={b:'',p:''}, ZB={b:'',p:''}, DAY=null, OPENOB=null;
+const t=k=>T[L][k]??k;
+const $=s=>document.querySelector(s);
+const f0=v=>v==null||isNaN(v)?'–':Math.round(v).toLocaleString('en-US');
+const f1=v=>v==null||isNaN(v)?'–':(Math.abs(v)>=100?Math.round(v).toLocaleString('en-US'):(+v).toFixed(1));
+const pc=v=>v==null||!isFinite(v)?'–':Math.round(v*100)+'%';
+const cls=i=>i==null||!isFinite(i)?'n':i>=0.97?'g':i>=0.88?'y':'r';
+const ix=i=>i==null||!isFinite(i)?'–':i.toFixed(2);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function setLang(l){L=l;store.set('lang',l);$('#lg-en').setAttribute('aria-pressed',l==='en');$('#lg-ru').setAttribute('aria-pressed',l==='ru');render()}
+$('#lg-en').onclick=()=>setLang('en'); $('#lg-ru').onclick=()=>setLang('ru');
+$('#who').onclick=()=>{U=null;store.set('user',null);lockOut();render()};
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{V=b.dataset.v;OPENOB=null;DET=null;DB='';render();window.scrollTo(0,0)});
+
+// ---------- password unlock (data slice per user, AES-GCM + PBKDF2) ----------
+const ub64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+function lockedD(){ const d=ENC.dir; return {meta:d.meta,towns:d.towns,obs:d.obs,keys:[],bp:{},shops:{},cp:{},stock:{}}; }
+async function unlock(u,pw){
+  const b=ENC.b[u.r+':'+u.c]; if(!b) throw new Error('nouser');
+  const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:ub64(b[0]),iterations:150000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['decrypt']);
+  const raw=await crypto.subtle.decrypt({name:'AES-GCM',iv:ub64(b[1])},key,ub64(b[2]));
+  const txt=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+  return JSON.parse(txt);
+}
+function lockOut(){ UNL=false; store.set('pw',null); if(ENC) D=lockedD(); }
+
+// ---------- scope helpers ----------
+function scopeOBs(){ // OBs visible in lists for this user
+  if(!U) return [];
+  if(U.r==='ob') return [U.c];
+  return Object.keys(D.obs).filter(c=>U.r==='dist'?D.obs[c].d===U.c:D.towns[D.obs[c].d].terr===U.c);
+}
+function dataOBs(){ return OPENOB?[OPENOB]:scopeOBs(); }
+function scopeTowns(){ if(U.r==='ob') return [D.obs[U.c].d]; if(U.r==='dist') return [U.c]; return Object.keys(D.towns).filter(k=>D.towns[k].terr===U.c); }
+function sumOB(list){ let tg=0,s=0; list.forEach(c=>{tg+=D.obs[c].t||0;s+=D.obs[c].s||0}); return {t:tg,s}; }
+function keyMatch(k){ const K=D.keys[k]; return (!SEL.b||K[0]===SEL.b)&&(!SEL.p||K[1]===SEL.p); }
+function idxOf(t_,s_){ return t_>0? (s_/t_)/D.meta.TG : null; }
+
+// ---------- views ----------
+function render(){
+  $('#lg-en').setAttribute('aria-pressed',L==='en');$('#lg-ru').setAttribute('aria-pressed',L==='ru');
+  if(!D) return;
+  document.querySelectorAll('nav.tabs button').forEach(b=>{b.querySelector('span').textContent=t(b.dataset.v);b.setAttribute('aria-selected',b.dataset.v===V)});
+  if(!U||!validUser()||(ENC&&!UNL)){ $('#tabs').hidden=true; $('#who').hidden=true; $('#sub').textContent=`${t('data')} ${D.meta.last}`; return renderLogin(); }
+  $('#tabs').hidden=false; $('#who').hidden=false; $('#who').textContent=t('change');
+  const nm = U.r==='ob'? D.obs[U.c].n+' · '+D.towns[D.obs[U.c].d].n : U.r==='dist'? D.towns[U.c].n+' · '+t('dist') : U.c+' · TSM';
+  $('#nm').textContent = nm;
+  $('#sub').textContent = `${t('data')} ${D.meta.last} · ${pc(D.meta.TG)} ${t('tgone')}`;
+  (({home:viewHome,brands:viewHome,route:viewRoute,stock:viewStock})[V]||viewHome)();
+}
+function validUser(){ return U && (U.r==='ob'?!!D.obs[U.c]:U.r==='dist'?!!D.towns[U.c]:['DG Khan','Layyah','Muzaffargarh'].includes(U.c)); }
+
+function renderLogin(){
+  $('#nm').textContent='DGK Team';
+  let st={r:(U&&U.r)||'ob',terr:'',town:'',c:'',pw:'',rem:true};
+  if(U){ if(U.r==='tsm') st.terr=U.c; else if(U.r==='dist'&&D.towns[U.c]){ st.town=U.c; st.terr=D.towns[U.c].terr; } else if(U.r==='ob'&&D.obs[U.c]){ st.c=U.c; st.town=D.obs[U.c].d; st.terr=D.towns[st.town].terr; } }
+  const draw=()=>{
+    const terrs=['DG Khan','Layyah','Muzaffargarh'];
+    const towns=Object.keys(D.towns).filter(k=>!st.terr||D.towns[k].terr===st.terr);
+    const obs=Object.keys(D.obs).filter(c=>D.obs[c].d===st.town).sort((a,b)=>D.obs[a].n.localeCompare(D.obs[b].n));
+    $('#main').innerHTML=`<div class="card login"><h2>${t('who')}</h2>
+     <div class="roles">${['ob','tsm','dist'].map(r=>`<button class="role" data-r="${r}" aria-pressed="${st.r===r}">${t(r)}</button>`).join('')}</div>
+     <label class="f">${t('terr')}<select id="l-terr"><option value="">${t('sel')}</option>${terrs.map(x=>`<option ${st.terr===x?'selected':''}>${x}</option>`).join('')}</select></label>
+     ${st.r!=='tsm'?`<label class="f">${t('town')}<select id="l-town"><option value="">${t('sel')}</option>${towns.map(k=>`<option value="${k}" ${st.town===k?'selected':''}>${D.towns[k].n}</option>`).join('')}</select></label>`:''}
+     ${st.r==='ob'?`<label class="f">${t('pickob')}<select id="l-ob"><option value="">${t('sel')}</option>${obs.map(c=>`<option value="${c}" ${st.c===c?'selected':''}>${esc(D.obs[c].n)} (${c})</option>`).join('')}</select></label>`:''}
+     ${ENC?`<label class="f">${t('pw')}<input class="pw" id="l-pw" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" value="${esc(st.pw||'')}"></label>
+     <label class="chk"><input type="checkbox" id="l-rem" ${st.rem?'checked':''}> ${t('remember')}</label>${LOGERR?`<p class="err">${LOGERR}</p>`:''}`:''}
+     <button class="primary" id="l-go" ${(st.r==='ob'&&st.c)||(st.r==='dist'&&st.town)||(st.r==='tsm'&&st.terr)?'':'disabled'}>${t('start')}</button>
+     <p class="note">${ENC?t('pwnote'):t('onlyyou')}</p></div>`;
+    document.querySelectorAll('.role').forEach(b=>b.onclick=()=>{st.r=b.dataset.r;st.c='';draw()});
+    $('#l-terr').onchange=e=>{st.terr=e.target.value;st.town='';st.c='';draw()};
+    if($('#l-town')) $('#l-town').onchange=e=>{st.town=e.target.value;st.c='';if(!st.terr&&st.town)st.terr=D.towns[st.town].terr;draw()};
+    if($('#l-ob')) $('#l-ob').onchange=e=>{st.c=e.target.value;draw()};
+    if($('#l-pw')){ $('#l-pw').oninput=e=>{st.pw=e.target.value}; $('#l-pw').onkeydown=e=>{if(e.key==='Enter'&&!$('#l-go').disabled)$('#l-go').click()}; $('#l-rem').onchange=e=>{st.rem=e.target.checked}; }
+    $('#l-go').onclick=async()=>{
+      const u={r:st.r,c:st.r==='ob'?st.c:st.r==='dist'?st.town:st.terr};
+      if(!ENC){U=u;store.set('user',U);V='home';render();return}
+      const btn=$('#l-go'); btn.disabled=true; btn.textContent=t('opening');
+      try{ const d=await unlock(u,(st.pw||'').trim()); D=d; UNL=true; U=u; LOGERR=''; store.set('user',U); store.set('pw',st.rem?(st.pw||'').trim():null); V='home'; render(); }
+      catch(e){ LOGERR=(window.crypto&&crypto.subtle&&window.DecompressionStream)?t('wrongpw'):t('nocrypto'); draw(); }
+    };
+  };
+  draw();
+}
+
+function tsOf(list){ if(!HG) return sumOB(list); let a=0,b=0; list.forEach(c=>(D.bp[c]||[]).forEach(r=>{if(inG(r[0],HG)){a+=r[1]||0;b+=r[2]||0}})); return {t:a,s:b}; }
+const inG=(k,g)=>!g||(g==='B'?D.keys[k][2]!=='K':D.keys[k][2]===g);
+function summaryCard(list,title){
+  let T_,S_,need,now;
+  if(!HG){ const s=sumOB(list); T_=s.t; S_=s.s; need=0; now=0; list.forEach(c=>{need+=D.obs[c].need||0; now+=D.obs[c].now||0}); }
+  else { const agg=brandPackRows(list); T_=0; S_=0; now=0; Object.keys(agg).forEach(k=>{if(inG(+k,HG)){T_+=agg[k][0];S_+=agg[k][1];now+=agg[k][5]}}); need=Math.max(0,T_-S_)/D.meta.REM; }
+  const ach=T_?S_/T_:null, id=idxOf(T_,S_);
+  const tile=(l,v,s_)=>`<button class="kpi" data-det="tgt"><div class="l">${l}<span class="go">›</span></div><div class="v">${v}</div><div class="s">${s_}</div></button>`;
+  const opts=[['',t('total')],['C','Core'],['V','VAB'],['B',t('bisconly')],['K',t('cakeonly')]];
+  return `<div class="card"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><h2 style="margin:0;flex:1;min-width:0">${title}</h2>
+   <select id="hg" style="width:auto;padding:7px 10px;font-size:14px" aria-label="Business">${opts.map(([g,l])=>`<option value="${g}" ${HG===g?'selected':''}>${l}</option>`).join('')}</select></div><div class="big">
+   ${tile(t('target'),f0(T_),t('ctn'))}${tile(t('sale'),f0(S_),pc(ach)+' '+t('ach').toLowerCase())}
+   ${tile(t('index'),`<span class="pill ${cls(id)}">${ix(id)}</span>`,pc(D.meta.TG)+' '+t('tgone'))}${tile(t('need'),f0(need),`${t('now6')}: <b>${f0(now)}</b> ${now>S_/D.meta.N*1.02?'<span style="color:var(--good)">▲</span>':now<S_/D.meta.N*0.98?'<span style="color:var(--bad)">▼</span>':''}<br>${t('mavg')}: ${f0(S_/D.meta.N)}`)}</div>
+   <div class="bar"><i style="width:${Math.min(100,(ach||0)*100)}%"></i><b style="left:${D.meta.TG*100}%"></b></div></div>`;
+}
+function obTable(list){
+  if(U.r==='ob'||OPENOB||list.length<2) return '';
+  const rows=list.map(c=>{let a=0,b=0,n=0;(D.bp[c]||[]).forEach(r=>{if(inG(r[0],TGG)&&(!DB||D.keys[r[0]][0]===DB)){a+=r[1]||0;b+=r[2]||0;n+=r[6]||0}});return {c,a,b,n,i:idxOf(a,b)}}).filter(x=>x.a>0||x.b>0).sort((x,y)=>(x.i??9)-(y.i??9));
+  if(!rows.length) return '';
+  return `<div class="card"><h2>${t('obs')}${DB?' · '+esc(DB):''}</h2><p class="note">${t('tapob')}</p><div class="tw"><table><tr><th>OB</th><th>${t('target')}</th><th>${t('salec')}</th><th>Index</th><th>${t('needc')}</th><th>${t('nowc')}</th></tr>`+
+   rows.map(x=>`<tr class="click" data-ob="${x.c}"><td class="nm">${esc(D.obs[x.c].n)}<br><span class="note">${D.towns[D.obs[x.c].d].n}</span></td><td>${f1(x.a)}</td><td>${f1(x.b)}</td><td><span class="pill ${cls(x.i)}">${ix(x.i)}</span></td><td><b>${f1(Math.max(0,x.a-x.b)/D.meta.REM)}</b></td><td>${f1(x.n)}</td></tr>`).join('')+`</table></div></div>`;
+}
+function viewTarget(list){
+  const agg=brandPackRows(list); const ks=Object.keys(agg).map(Number).filter(k=>(agg[k][0]>0||agg[k][1]>0)&&inG(k,TGG)).sort((a,b)=>a-b);
+  const rows={}; ks.filter(k=>!DB||D.keys[k][0]===DB).forEach(k=>{const g=DB?D.keys[k][1]:D.keys[k][0];const r=rows[g]||(rows[g]=[0,0,0,0]);r[0]+=agg[k][0];r[1]+=agg[k][1];r[2]+=agg[k][3];r[3]+=agg[k][5]});
+  let T0=0,S0=0; Object.values(rows).forEach(r=>{T0+=r[0];S0+=r[1]});
+  const who=OPENOB?esc(D.obs[OPENOB].n):U.r==='ob'?esc(D.obs[U.c].n):U.r==='dist'?D.towns[U.c].n:U.c;
+  const chips=`<div class="chips">${[['',t('all')],['C','Core'],['V','VAB'],['B',t('bisc')],['K','Cake']].map(([g,l])=>`<button class="chip" data-tgg="${g}" aria-pressed="${TGG===g}">${l}</button>`).join('')}</div>`;
+  const line=(l,r,b)=>{const i=idxOf(r[0],r[1]);const need=Math.max(0,r[0]-r[1])/D.meta.REM;return `<tr${b?` class="click" data-db="${esc(b)}"`:''}><td class="nm" style="min-width:90px">${esc(l)}${b?' ›':''}</td><td>${f1(r[0])}</td><td>${f1(r[1])}<br><span class="note">${pc(r[0]?r[1]/r[0]:null)}</span></td><td><span class="pill ${cls(i)}">${ix(i)}</span></td><td><b>${f1(need)}</b></td><td>${f1(r[3])} ${r[3]>r[1]/D.meta.N*1.02?'<span style="color:var(--good)">▲</span>':r[3]<r[1]/D.meta.N*0.98?'<span style="color:var(--bad)">▼</span>':''}<br><span class="note">${f1(r[1]/D.meta.N)}</span></td><td>${f1(r[2])}</td></tr>`};
+  $('#main').innerHTML=`<button class="chip" id="dbk">← ${OPENOB&&U.r!=='ob'?t('back'):DB?esc(DB):t('home')}</button>
+   <div class="card"><h2>${t('bytgt')}${DB?' · '+esc(DB):''}</h2><p class="note">${who} · ${D.meta.REM} ${t('daysleft')}</p>${DB?'':chips}</div>
+   <div class="card"><div class="tw"><table><tr><th>${DB?t('pack'):t('brand')}</th><th>${t('target')}</th><th>${t('salec')}</th><th>Index</th><th>${t('needc')}</th><th>${t('nowc')}</th><th>${D.meta.prv}</th></tr>`+
+   Object.entries(rows).map(([g,r])=>line(DB?abbr(g):g,r,DB?null:g)).join('')+
+   `<tr style="font-weight:700">${line(t('total'),[T0,S0,Object.values(rows).reduce((a,r)=>a+r[2],0),Object.values(rows).reduce((a,r)=>a+r[3],0)],null).slice(4)}</table></div>
+   <p class="note">${t('tgtnote')}</p></div>`+obTable(list);
+  $('#dbk').onclick=()=>{if(OPENOB&&U.r!=='ob')OPENOB=null;else if(DB)DB='';else DET=null;render()};
+  document.querySelectorAll('tr[data-ob]').forEach(r=>r.onclick=()=>{OPENOB=r.dataset.ob;render();window.scrollTo(0,0)});
+  document.querySelectorAll('.chip[data-tgg]').forEach(b=>b.onclick=()=>{TGG=b.dataset.tgg;render()});
+  document.querySelectorAll('tr[data-db]').forEach(r=>r.onclick=()=>{DB=r.dataset.db;render();window.scrollTo(0,0)});
+}
+function viewHome(){
+  if(DET==='tgt'){ return viewTarget(OPENOB?[OPENOB]:scopeOBs()); }
+  if(DET){ return viewDetail(OPENOB||U.c); }
+  if(U.r==='ob'){
+    const o=D.obs[U.c]; const town=Object.keys(D.obs).filter(c=>D.obs[c].d===o.d).sort((a,b)=>D.obs[a].rk-D.obs[b].rk);
+    const top=town.slice(0,2); const me=o;
+    const row=(c,isMe)=>{const x=D.obs[c];const i=idxOf(x.t,x.s);return `<div class="rk ${isMe?'me':''}"><span class="no">${x.rk}</span><span class="nm">${isMe?t('you')+' · ':''}${esc(x.n)}</span>${isMe?`<span class="pill ${cls(i)}">${ix(i)}</span>`:`<span class="pill ${cls(i)}">${ix(i)}</span>`}</div>`};
+    $('#main').innerHTML = summaryCard([U.c], t('month')+' '+D.meta.cur) +
+     `<div class="card"><h2>${t('rank')}: ${me.rk} ${t('of')} ${me.of}</h2><div class="rank">${top.map(c=>row(c,c===U.c)).join('')}${top.includes(U.c)?'':row(U.c,true)}</div></div>
+      ${kpiTiles(U.c)}`;
+    bindTiles(); return;
+  }
+  if(OPENOB){ return obDetail(); }
+  const list=scopeOBs(); const towns=scopeTowns();
+  let html=summaryCard(list, U.r==='dist'?D.towns[U.c].n:U.c+' '+t('terr'));
+  if(U.r==='tsm'){
+    html+=`<div class="card"><h2>${t('towns')}</h2><div class="tw"><table><tr><th>${t('town')}</th><th>${t('target')}</th><th>${t('sale')}</th><th>${t('ach')}</th><th>${t('index')}</th></tr>`+
+     towns.map(k=>{const l=list.filter(c=>D.obs[c].d===k);const s=tsOf(l);const i=idxOf(s.t,s.s);return {k,s,i}}).sort((a,b)=>(a.i??9)-(b.i??9))
+     .map(({k,s,i})=>`<tr><td>${D.towns[k].n}</td><td>${f0(s.t)}</td><td>${f0(s.s)}</td><td>${pc(s.t?s.s/s.t:null)}</td><td><span class="pill ${cls(i)}">${ix(i)}</span></td></tr>`).join('')+`</table></div></div>`;
+  }
+  html+=`<div class="card"><h2>${t('obperf')}</h2><p class="note">${t('tapob')}</p><div class="tw"><table><tr><th>OB</th><th>${t('target')}</th><th>${t('sale')}</th><th>${t('index')}</th><th>${t('callp').split(' ')[0]} %</th><th>${t('rk')}</th></tr>`+
+    list.map(c=>({c,v:tsOf([c])})).filter(z=>z.v.t>0||z.v.s>0).sort((a,b)=>(idxOf(a.v.t,a.v.s)??9)-(idxOf(b.v.t,b.v.s)??9)).map(({c,v})=>{const x=D.obs[c];const i=idxOf(v.t,v.s);
+     return `<tr class="click" data-ob="${c}"><td class="nm"><b>${esc(x.n)}</b><br><span class="note">${D.towns[x.d].n} · ${c}</span></td><td>${f0(v.t)}</td><td>${f0(v.s)}</td><td><span class="pill ${cls(i)}">${ix(i)}</span></td><td>${pc(x.cp)}</td><td>${x.rk}/${x.of}</td></tr>`}).join('')+`</table></div></div>`;
+  $('#main').innerHTML=html; bindTiles();
+  document.querySelectorAll('tr[data-ob]').forEach(r=>r.onclick=()=>{OPENOB=r.dataset.ob;render();window.scrollTo(0,0)});
+}
+function obDetail(){
+  const o=D.obs[OPENOB];
+  $('#main').innerHTML=`<button class="chip" id="bk">← ${t('back')}</button>`+summaryCard([OPENOB], esc(o.n)+' · '+D.towns[o.d].n)+
+   `<div class="card"><h2>${t('rk')}: ${o.rk}/${o.of}</h2><p class="note">${t('brands')} / ${t('route')}: ${L==='en'?'the tabs below now show this OB.':'neeche tabs ab isi OB ka data dikhayenge.'}</p></div>`+kpiTiles(OPENOB);
+  $('#bk').onclick=()=>{OPENOB=null;render()}; bindTiles();
+}
+
+function brandPackRows(list){ // aggregate bp over OBs: per key [t,s,out,ps,po]
+  const agg={}; list.forEach(c=>(D.bp[c]||[]).forEach(r=>{const a=agg[r[0]]||(agg[r[0]]=[0,0,0,0,0,0]);for(let i=1;i<7;i++)a[i-1]+=r[i]||0}));
+  return agg;
+}
+function viewBrands(){
+  const list=dataOBs(); const agg=brandPackRows(list);
+  const ksAll=Object.keys(agg).map(Number).filter(k=>agg[k][0]>0||agg[k][1]>0);
+  const grpChips=`<div class="chips" style="margin-bottom:10px">${[['',t('all')],['C','Core'],['V','VAB'],['K','Cake'],['DIV',t('divs')]].map(([g,l])=>`<button class="chip" data-grp="${g}" aria-pressed="${GRP===g}">${l}</button>`).join('')}</div>`;
+  if(GRP==='DIV') return viewDivision(list,agg,ksAll,grpChips);
+  const ks=GRP?ksAll.filter(k=>D.keys[k][2]===GRP):ksAll;
+  const brands=[...new Set(ks.map(k=>D.keys[k][0]))];
+  if(SEL.b&&!brands.includes(SEL.b)) SEL={b:'',p:''};
+  const packs=[...new Set(ks.filter(k=>!SEL.b||D.keys[k][0]===SEL.b).map(k=>D.keys[k][1]))];
+  if(SEL.p&&!packs.includes(SEL.p)) SEL.p='';
+  const sel=ks.filter(keyMatch); let tg=0,s=0,ps=0; sel.forEach(k=>{tg+=agg[k][0];s+=agg[k][1];ps+=agg[k][3]});
+  // shops buying (unique outlets) from shop lists
+  const shopsets=list.flatMap(c=>(D.shops[c]||[]).map(x=>[c,x]));
+  const buying=new Set(), billed=new Set(); shopsets.forEach(([c,x])=>{const m=x[8];const keys=Object.keys(m);if(keys.length)billed.add(x[0]);if(keys.some(k=>sel.includes(+k)))buying.add(x[0])});
+  const ach=tg?s/tg:null, id=idxOf(tg,s);
+  let html=`${OPENOB?`<button class="chip" id="bk">← ${t('back')} · ${esc(D.obs[OPENOB].n)}</button>`:''}<div class="card">${grpChips}<div class="row2">
+    <label class="f">${t('brand')}<select id="s-b"><option value="">${t('allb')}</option>${brands.map(b=>`<option ${SEL.b===b?'selected':''}>${esc(b)}</option>`).join('')}</select></label>
+    <label class="f">${t('pack')}<select id="s-p"><option value="">${t('allp')}</option>${packs.map(p=>`<option ${SEL.p===p?'selected':''}>${esc(p)}</option>`).join('')}</select></label></div></div>
+   <div class="card"><h2>${GRP&&!SEL.b?({C:'Core',V:'VAB',K:'Cake'})[GRP]+' · ':''}${esc(SEL.b||t('allb'))} · ${esc(SEL.p||t('allp'))}</h2><div class="big">
+    <div class="kpi"><div class="l">${t('target')}</div><div class="v">${f1(tg)}</div><div class="s">${t('ctn')}</div></div>
+    <div class="kpi"><div class="l">${t('sale')}</div><div class="v">${f1(s)}</div><div class="s">${pc(ach)}</div></div>
+    <div class="kpi"><div class="l">${t('index')}</div><div class="v"><span class="pill ${cls(id)}">${ix(id)}</span></div><div class="s">${t('need')}: ${f1(Math.max(0,tg-s)/D.meta.REM)}</div></div>
+    <div class="kpi"><div class="l">${t('outlets')}</div><div class="v">${f0(buying.size)}</div><div class="s">${t('pen')} ${pc(billed.size?buying.size/billed.size:null)}</div></div></div>
+    <p class="note">${D.meta.prv} ${t('prev')}: ${f1(ps)} ${t('ctn')} · ${t('growth')} ${ps?((s/ps-1)>=0?'+':'')+Math.round((s/ps-1)*100)+'%':'–'}</p>
+    <div class="bar"><i style="width:${Math.min(100,(ach||0)*100)}%"></i><b style="left:${D.meta.TG*100}%"></b></div></div>`;
+  // table: packs of brand, or brands when all
+  const groupBy = SEL.b? 1 : 0; const rows={};
+  ks.filter(k=>(!SEL.b||D.keys[k][0]===SEL.b)&&(!SEL.p||D.keys[k][1]===SEL.p)).forEach(k=>{const g=D.keys[k][groupBy];const r=rows[g]||(rows[g]=[0,0,0]);r[0]+=agg[k][0];r[1]+=agg[k][1];r[2]+=agg[k][3]});
+  html+=`<div class="card"><h2>${SEL.b?t('packs'):t('brands')}</h2><div class="tw"><table><tr><th>${SEL.b?t('pack'):t('brand')}</th><th>${t('target')}</th><th>${t('salec')}</th><th>Ach</th><th>Index</th><th>${D.meta.prv}</th></tr>`+
+    Object.entries(rows).map(([g,r])=>{const i=idxOf(r[0],r[1]);return `<tr class="click" data-g="${esc(g)}"><td>${esc(g)}</td><td>${f1(r[0])}</td><td>${f1(r[1])}</td><td>${pc(r[0]?r[1]/r[0]:null)}</td><td><span class="pill ${cls(i)}">${ix(i)}</span></td><td>${f1(r[2])}</td></tr>`}).join('')+`</table></div></div>`;
+  // OB table for TSM / distributor
+  if(U.r!=='ob'&&!OPENOB&&(SEL.b||SEL.p||GRP)){
+    html+=`<div class="card"><h2>${t('obs')}</h2><div class="tw"><table><tr><th>OB</th><th>${t('target')}</th><th>${t('sale')}</th><th>${t('index')}</th></tr>`+
+     list.map(c=>{let a=0,b=0;(D.bp[c]||[]).forEach(r=>{if(keyMatch(r[0])&&(!GRP||D.keys[r[0]][2]===GRP)){a+=r[1]||0;b+=r[2]||0}});return {c,a,b,i:idxOf(a,b)}}).filter(x=>x.a>0||x.b>0).sort((x,y)=>(x.i??9)-(y.i??9))
+     .map(x=>`<tr class="click" data-ob="${x.c}"><td class="nm">${esc(D.obs[x.c].n)} <span class="note">${D.towns[D.obs[x.c].d].n}</span></td><td>${f1(x.a)}</td><td>${f1(x.b)}</td><td><span class="pill ${cls(x.i)}">${ix(x.i)}</span></td></tr>`).join('')+`</table></div></div>`;
+  }
+  // shops not buying (OB scope only)
+  if((U.r==='ob'||OPENOB)&&(SEL.b||SEL.p)){
+    const c=OPENOB||U.c; const nb=(D.shops[c]||[]).map(x=>{let h=0;Object.entries(x[9]).forEach(([k,v])=>{if(sel.includes(+k))h+=v});const m=Object.keys(x[8]).some(k=>sel.includes(+k));return {x,h,m}}).filter(z=>!z.m&&z.h>0).sort((a,b)=>b.h-a.h);
+    html+=`<div class="card"><h2>${t('notbuy')}</h2><p class="note">${nb.length} · ${t('notbuyn')} ${D.meta.hist.join('/')} (${t('avgm')})</p>`+
+     (nb.slice(0,40).map(({x,h})=>`<div class="shop"><div class="t"><b>${esc(x[1])}</b><span class="pill n">${f1(h)} ${t('ctn')}</span></div><div class="m">${esc(x[2])} · ${dayNames(x[3])} · ${lastTxt(x)}</div></div>`).join('')||`<div class="empty">${t('none')}</div>`)+`</div>`;
+  }
+  $('#main').innerHTML=html;
+  $('#s-b').onchange=e=>{SEL.b=e.target.value;SEL.p='';render()};
+  $('#s-p').onchange=e=>{SEL.p=e.target.value;render()};
+  bindGrp();
+  document.querySelectorAll('tr[data-g]').forEach(r=>r.onclick=()=>{if(SEL.b)SEL.p=r.dataset.g;else SEL.b=r.dataset.g;render()});
+  document.querySelectorAll('tr[data-ob]').forEach(r=>r.onclick=()=>{OPENOB=r.dataset.ob;render();window.scrollTo(0,0)});
+  if($('#bk')) $('#bk').onclick=()=>{OPENOB=null;render()};
+}
+function bindGrp(){ document.querySelectorAll('.chip[data-grp]').forEach(b=>b.onclick=()=>{GRP=b.dataset.grp;SEL={b:'',p:''};render()}); }
+function viewDivision(list,agg,ks,grpChips){
+  const sum=g=>{let a=0,b=0,p=0;ks.filter(k=>g.includes(D.keys[k][2])).forEach(k=>{a+=agg[k][0];b+=agg[k][1];p+=agg[k][3]});return [a,b,p]};
+  const shopsets=list.flatMap(c=>(D.shops[c]||[]));
+  const buyers=g=>{const st=new Set();shopsets.forEach(x=>{if(Object.keys(x[8]).some(k=>g.includes(D.keys[k][2])))st.add(x[0])});return st.size};
+  const R=[[t('bisc'),['C','V'],1],['– Core',['C'],0],['– VAB',['V'],0],['Cake',['K'],1],[t('total'),['C','V','K'],1]];
+  let html=`${OPENOB?`<button class="chip" id="bk">← ${t('back')} · ${esc(D.obs[OPENOB].n)}</button>`:''}<div class="card">${grpChips}<h2>${t('div')}</h2>
+   <div class="tw"><table><tr><th></th><th>${t('target')}</th><th>${t('salec')}</th><th>Ach</th><th>Index</th><th>${t('shopsc')}</th><th>${D.meta.prv}</th></tr>`+
+   R.map(([l,g,b])=>{const [a,s_,p]=sum(g);if(!a&&!s_)return '';const i=idxOf(a,s_);return `<tr${b?' style="font-weight:700"':''}><td>${l}</td><td>${f1(a)}</td><td>${f1(s_)}</td><td>${pc(a?s_/a:null)}</td><td><span class="pill ${cls(i)}">${ix(i)}</span></td><td>${f0(buyers(g))}</td><td>${f1(p)}</td></tr>`}).join('')+
+   `</table></div><p class="note">${t('divnote')}</p></div>`;
+  if(U.r!=='ob'&&!OPENOB){
+    html+=`<div class="card"><h2>${t('obs')}</h2><div class="tw"><table><tr><th>OB</th><th>${t('bisc')}</th><th>Cake</th><th>${t('total')}</th></tr>`+
+     list.map(c=>{const v={B:[0,0],K:[0,0]};(D.bp[c]||[]).forEach(r=>{const g=D.keys[r[0]][2]==='K'?'K':'B';v[g][0]+=r[1]||0;v[g][1]+=r[2]||0});const i=idxOf(v.B[0]+v.K[0],v.B[1]+v.K[1]);return {c,v,i}}).sort((a,b)=>(a.i??9)-(b.i??9))
+     .map(({c,v,i})=>{const cell=x=>x[0]>0?`<span class="pill ${cls(idxOf(x[0],x[1]))}">${ix(idxOf(x[0],x[1]))}</span>`:'–';return `<tr class="click" data-ob="${c}"><td class="nm">${esc(D.obs[c].n)} <span class="note">${D.towns[D.obs[c].d].n}</span></td><td>${cell(v.B)}</td><td>${cell(v.K)}</td><td><span class="pill ${cls(i)}">${ix(i)}</span></td></tr>`}).join('')+`</table></div><p class="note">${t('index')}</p></div>`;
+  }
+  $('#main').innerHTML=html; bindGrp();
+  document.querySelectorAll('tr[data-ob]').forEach(r=>r.onclick=()=>{OPENOB=r.dataset.ob;render();window.scrollTo(0,0)});
+  if($('#bk')) $('#bk').onclick=()=>{OPENOB=null;render()};
+}
+
+const zeroShops=c=>(D.shops[c]||[]).filter(x=>!Object.keys(x[8]).length);
+function kpiTiles(c){
+  const o=D.obs[c]; const lost=(D.shops[c]||[]).filter(x=>x[10]).length, zero=zeroShops(c).length;
+  const tile=(k,l,v,s_)=>`<button class="kpi" data-det="${k}"><div class="l">${l}<span class="go">›</span></div><div class="v">${v}</div>${s_?`<div class="s">${s_}</div>`:''}</button>`;
+  return `<div class="card"><div class="big">${tile('cp',t('callp'),pc(o.cp),`${f0(D.cp[c]?.on)} / ${f0(D.cp[c]?.pl)} calls`)}${tile('up',t('uniq'),pc(o.up),`${f0(o.billed)} / ${f0(o.shops)}`)}${tile('lost',t('lost'),f0(lost),'')}${tile('zero',t('noorder'),f0(zero),'')}</div><p class="note">${t('tapdet')}</p></div>`;
+}
+function bindTiles(){ document.querySelectorAll('button.kpi[data-det]').forEach(b=>b.onclick=()=>{DET=b.dataset.det;DB='';if(DET==='tgt')TGG=HG;render();window.scrollTo(0,0)});
+  const h=$('#hg'); if(h) h.onchange=e=>{HG=e.target.value;store.set('hg',HG);render()}; }
+function histTop(x,n){ return Object.entries(x[9]).sort((a,b)=>b[1]-a[1]).slice(0,n).map(([k,v])=>`<span class="pill n" style="margin:2px 2px 0 0">${esc(D.keys[k][0])} ${abbr(D.keys[k][1])} · ${f1(v)}</span>`).join(''); }
+function viewDetail(c){
+  const o=D.obs[c]; const back=`<button class="chip" id="dbk">← ${DB?esc(DB):(OPENOB?esc(o.n):t('home'))}</button>`;
+  let html=back;
+  const tk=new Set([...(D.bp[c]||[]).filter(r=>r[1]>0).map(r=>r[0]),...Object.keys(D.cp[c]?.k||{}).map(Number)]);
+  const keys=[...tk].sort((a,b)=>a-b); const brands=[...new Set(keys.map(k=>D.keys[k][0]))];
+  if(DET==='cp'){
+    const C=D.cp[c]||{pl:0,on:0,k:{},b:{}};
+    html+=`<div class="card"><h2>${t('callp')}${DB?' · '+esc(DB):''}</h2><div class="big">
+      <div class="kpi"><div class="l">${t('planned')}</div><div class="v">${f0(C.pl)}</div></div>
+      <div class="kpi"><div class="l">${t('prodc')}</div><div class="v">${f0(C.on)}</div><div class="s">${pc(C.pl?C.on/C.pl:null)}</div></div></div>
+      <p class="note">${t('cpnote')}</p></div>`;
+    const rows=DB? keys.filter(k=>D.keys[k][0]===DB).map(k=>[abbr(D.keys[k][1]),C.k[k]||0,null]) : brands.map(b=>[b,C.b[b]||0,b]);
+    html+=`<div class="card"><div class="tw"><table><tr><th>${DB?t('pack'):t('brand')}</th><th>${t('callsw')}</th><th>${t('cpb')}</th><th>${t('strike')}</th></tr>`+
+      rows.map(([l,n,b])=>{const r=C.pl?n/C.pl:null;return `<tr${b?` class="click" data-db="${esc(b)}"`:''}><td>${esc(l)}${b?' ›':''}</td><td>${f0(n)}</td><td><span class="pill ${r==null?'n':r>=0.5?'g':r>=0.25?'y':'r'}">${pc(r)}</span></td><td>${pc(C.on?n/C.on:null)}</td></tr>`}).join('')+`</table></div></div>`;
+  } else if(DET==='up'){
+    const sh=D.shops[c]||[]; const N=sh.length;
+    const cnt=(f)=>sh.filter(x=>Object.keys(x[8]).some(k=>f(+k))).length, cntH=(f)=>sh.filter(x=>Object.keys(x[9]).some(k=>f(+k))).length;
+    html+=`<div class="card"><h2>${t('uniq')}${DB?' · '+esc(DB):''}</h2><div class="big">
+      <div class="kpi"><div class="l">${t('shops')}</div><div class="v">${f0(N)}</div></div>
+      <div class="kpi"><div class="l">${t('billed')}</div><div class="v">${f0(sh.filter(x=>Object.keys(x[8]).length).length)}</div><div class="s">${pc(o.up)}</div></div></div>
+      <p class="note">${t('upnote')}</p></div>`;
+    const rows=DB? keys.filter(k=>D.keys[k][0]===DB).map(k=>[abbr(D.keys[k][1]),cnt(x=>x===k),cntH(x=>x===k),null]) : brands.map(b=>[b,cnt(k=>D.keys[k][0]===b),cntH(k=>D.keys[k][0]===b),b]);
+    html+=`<div class="card"><div class="tw"><table><tr><th>${DB?t('pack'):t('brand')}</th><th>${t('shopsc')}</th><th>UP %</th><th>${D.meta.hist.join('/')}</th></tr>`+
+      rows.map(([l,n,h,b])=>{const r=N?n/N:null;return `<tr${b?` class="click" data-db="${esc(b)}"`:''}><td>${esc(l)}${b?' ›':''}</td><td>${f0(n)}</td><td><span class="pill ${r==null?'n':r>=0.6?'g':r>=0.3?'y':'r'}">${pc(r)}</span></td><td>${f0(h)}</td></tr>`}).join('')+`</table></div></div>`;
+  } else {
+    const L2=DET==='lost'?(D.shops[c]||[]).filter(x=>x[10]):zeroShops(c);
+    L2.sort((a,b)=>(b[7]||0)-(a[7]||0)); const risk=L2.reduce((a,x)=>a+(x[7]||0),0);
+    html+=`<div class="card"><h2>${DET==='lost'?t('lost'):t('noorder')}: ${L2.length}</h2><p class="note">${DET==='lost'?t('lostnote'):t('zeronote')} · ${t('risk')}: <b>${f1(risk)}</b> ${t('ctn')}/${L==='en'?'month':'mahina'}</p></div>
+     <div class="card">${L2.map(x=>`<div class="shop"><div class="t"><b>${esc(x[1])}</b><span class="tag n">${x[4]==='W'?t('ws'):t('retail')} ${x[5]}</span></div>
+      <div class="m"><b>${esc(dayNames(x[3]))}</b> · ${t('avgm')}: <b>${f1(x[7])}</b> · ${lastTxt(x)}</div>
+      ${Object.keys(x[9]).length?`<div class="m">${t('usedto')}: ${histTop(x,5)}</div>`:`<div class="m">${t('nohist')}</div>`}</div>`).join('')||`<div class="empty">${t('none')}</div>`}</div>`;
+  }
+  $('#main').innerHTML=html;
+  $('#dbk').onclick=()=>{if(DB)DB='';else DET=null;render()};
+  document.querySelectorAll('tr[data-db]').forEach(r=>r.onclick=()=>{DB=r.dataset.db;render();window.scrollTo(0,0)});
+}
+const lastTxt=x=>`${t('lastord')}: <b>${x[6]||t('never')}</b>${x[11]!=null?` (${x[11]} ${t('days')})`:''}${x[12]&&x[12]!==x[6]?` · ${t('fromyou')}: ${x[12]}`:(x[6]&&!x[12]?` · ${t('fromyou')}: –`:'')}`;
+const dayNames=ds=>(ds||[]).map(d=>t('day')[d]).join(', ')||'–';
+
+function todayWD(){ const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Karachi'})); let w=(d.getDay()+6)%7; if(w===4) w=5; return w; }
+function viewRoute(){
+  const list = OPENOB?[OPENOB]: U.r==='ob'?[U.c]:null;
+  if(!list){ // TSM / distributor: pick OB first
+    $('#main').innerHTML=`<div class="card"><h2>${t('today')}</h2><p class="note">${t('tapob')}</p><div class="tw"><table><tr><th>OB</th><th>${t('town')}</th><th>${t('index')}</th></tr>`+
+      scopeOBs().map(c=>{const x=D.obs[c];const i=idxOf(x.t,x.s);return `<tr class="click" data-ob="${c}"><td class="nm">${esc(x.n)}</td><td>${D.towns[x.d].n}</td><td><span class="pill ${cls(i)}">${ix(i)}</span></td></tr>`}).join('')+`</table></div></div>`;
+    document.querySelectorAll('tr[data-ob]').forEach(r=>r.onclick=()=>{OPENOB=r.dataset.ob;render();window.scrollTo(0,0)}); return;
+  }
+  const c=list[0]; if(DAY===null) DAY=todayWD();
+  const all=D.shops[c]||[]; const daysUsed=[...new Set(all.flatMap(x=>x[3]))].sort();
+  const sh=DAY===-1?all:all.filter(x=>x[3].includes(DAY));
+  const score=x=>(x[7]||0)+(Object.keys(x[8]).length?0:5);
+  // zero purchase filter (brand / pack the OB has a target for)
+  const tk=(D.bp[c]||[]).filter(r=>r[1]>0).map(r=>r[0]);
+  const zb=[...new Set(tk.map(k=>D.keys[k][0]))];
+  if(ZB.b&&!zb.includes(ZB.b)) ZB={b:'',p:''};
+  const zp=[...new Set(tk.filter(k=>!ZB.b||D.keys[k][0]===ZB.b).map(k=>D.keys[k][1]))];
+  if(ZB.p&&!zp.includes(ZB.p)) ZB.p='';
+  const ZON=!!(ZB.b||ZB.p); const zk=tk.filter(k=>(!ZB.b||D.keys[k][0]===ZB.b)&&(!ZB.p||D.keys[k][1]===ZB.p));
+  let rows=sh.map(x=>{const mtd=Object.values(x[8]).reduce((a,b)=>a+b,0);const histTop=Object.entries(x[9]).sort((a,b)=>b[1]-a[1]);
+     const miss=histTop.filter(([k])=>!(k in x[8])).slice(0,3).map(([k])=>D.keys[k][0]+' '+abbr(D.keys[k][1]));
+     const zmiss=zk.filter(k=>!(k in x[8])); const zbought=zk.some(k=>k in x[8]); const zhist=zmiss.filter(k=>k in x[9]);
+     return {x,mtd,miss,win:mtd===0&&(x[7]||0)>0,zmiss,zbought,zhist}});
+  const PLAN=DAY!==-1&&!ZON; const pd=DAY!==-1?planDate(DAY):null;
+  if(PLAN) rows.forEach(r=>{r.sg=suggestShop(r.x,c,pd)});
+  if(ZON){ rows=rows.filter(r=>!r.zbought).sort((a,b)=>(b.zhist.length>0)-(a.zhist.length>0)||((b.x[7]||0)-(a.x[7]||0))); }
+  else if(PLAN) rows.sort((a,b)=>(b.sg.ctn-a.sg.ctn)||((b.x[7]||0)-(a.x[7]||0)));
+  else rows.sort((a,b)=>(b.win-a.win)||((b.x[7]||0)-(a.x[7]||0)));
+  const zl=k=>ZB.b?abbr(D.keys[k][1]):D.keys[k][0]+' '+abbr(D.keys[k][1]);
+  $('#main').innerHTML=`${OPENOB?`<button class="chip" id="bk">← ${t('back')} · ${esc(D.obs[OPENOB].n)}</button>`:''}
+   <div class="card"><h2>${DAY===-1?t('allroutes'):t('today')}</h2><div class="chips"><button class="chip" data-d="-1" aria-pressed="${DAY===-1}">${t('allroutes')}</button>${daysUsed.map(d=>`<button class="chip" data-d="${d}" aria-pressed="${d===DAY}">${t('day')[d]}</button>`).join('')}</div>
+   <p class="note">${sh.length} shops · ${sh.filter(x=>!Object.keys(x[8]).length&&(x[7]||0)>0).length} ${t('wapis').toLowerCase()}</p></div>
+   ${PLAN?planCard(c,rows,pd):''}
+   <div class="card"><h2>${t('zero')}</h2><div class="row2">
+    <label class="f">${t('brand')}<select id="z-b"><option value="">${t('sel')}</option>${zb.map(b=>`<option ${ZB.b===b?'selected':''}>${esc(b)}</option>`).join('')}</select></label>
+    <label class="f">${t('pack')}<select id="z-p"><option value="">${t('allp')}</option>${zp.map(p=>`<option ${ZB.p===p?'selected':''}>${esc(p)}</option>`).join('')}</select></label></div>
+    <p class="note">${ZON?`<b>${rows.length}</b> ${t('of')} ${sh.length} ${t('zeron')}`:t('zerohint')}</p>${ZON?`<button class="chip" id="z-x">${t('clear')}</button>`:''}</div>
+   <div class="card">${(SGMAP=new Map(rows.map(r=>[r.x,r.sg])),'')}${rows.map(r=>shopCard(r,ZON,zl)).join('')||`<div class="empty">${t('none')}</div>`}</div>`;
+  const sc=document.querySelector('.chip[data-d][aria-pressed="true"]'); if(sc) sc.parentElement.scrollLeft=sc.offsetLeft-sc.parentElement.offsetLeft-8;
+  $('#z-b').onchange=e=>{ZB.b=e.target.value;ZB.p='';render()};
+  $('#z-p').onchange=e=>{ZB.p=e.target.value;render()};
+  if($('#z-x')) $('#z-x').onclick=()=>{ZB={b:'',p:''};render()};
+  if($('#cp-plan')) $('#cp-plan').onclick=e=>{const b=e.target;navigator.clipboard.writeText(PLANTXT).then(()=>{b.textContent=t('copied')}).catch(()=>{b.textContent=t('copyfail')})};
+  document.querySelectorAll('.chip[data-d]').forEach(b=>b.onclick=()=>{DAY=+b.dataset.d;render()});
+  if($('#bk')) $('#bk').onclick=()=>{OPENOB=null;render()};
+}
+
+// ---------- day plan + suggested order ----------
+function pktToday(){ const d=new Date(new Date().toLocaleString('en-US',{timeZone:'Asia/Karachi'})); d.setHours(0,0,0,0); return d; }
+function planDate(day){ const t0=pktToday(); const w=(t0.getDay()+6)%7; const d=new Date(t0); d.setDate(d.getDate()+((day-w+7)%7)); return d; }
+function lastBook(){ const m=D.meta.mend.split('-').map(Number); const d=new Date(m[0],m[1]-1,m[2]); d.setDate(d.getDate()-1); if(d.getDay()===5) d.setDate(d.getDate()-1); return d; }
+function visitsLeft(days,from){ let n=0; const e=lastBook(); for(let d=new Date(from); d<=e; d.setDate(d.getDate()+1)){ if(d.getDay()!==5 && days.includes((d.getDay()+6)%7)) n++; } return n; }
+function shopCard({x,mtd,miss,win,zmiss,zhist,sg},ZON,zl){
+  const tags=`${!ZON&&win?`<span class="tag r">${t('wapis')}</span>`:''}${ZON&&zhist.length?`<span class="tag y">${t('before')}</span>`:''}${x[10]?`<span class="tag y">${t('lost')}</span>`:''}<span class="tag n">${x[4]==='W'?t('ws'):t('retail')} ${x[5]}</span>`;
+  const line=`<div class="m">${DAY===-1?`<b>${esc(dayNames(x[3]))}</b> · `:''}${t('mtd')}: <b>${f1(mtd)}</b> ${t('ctn')} · ${t('avgm')}: ${f1(x[7])} · ${lastTxt(x)}</div>`;
+  if(ZON) return `<div class="shop"><div class="t"><b>${esc(x[1])}</b>${tags}</div>${line}<div class="m"><span class="tag r">${t('notbought')}</span> ${zmiss.map(k=>`<span class="${k in x[9]?'pill y':'pill n'}" style="margin:2px 2px 0 0">${esc(zl(k))}</span>`).join('')}</div></div>`;
+  const has=sg&&sg.list.length; const sl=new Set(has?sg.list.map(z=>D.keys[z.k][0]+' '+abbr(D.keys[z.k][1])):[]); miss=miss.filter(m=>!sl.has(m));
+  const body=(has?`<div class="sugbox"><div class="l">${t('sugg')} · ${sg.list.length} items · ${f1(sg.ctn)} ${t('ctn')}</div><table>`+sg.list.map(z=>`<tr><td>${esc(D.keys[z.k][0])} <span class="note">${abbr(D.keys[z.k][1])}</span></td><td><b>${z.box}</b> ${t('box')}</td></tr>`).join('')+`</table></div>`:`<div class="m">${t('nosugg')}</div>`)
+    +(miss.length?`<div class="m">${t('pitch')}: ${esc(miss.join(' · '))}</div>`:'');
+  return `<details class="shop"><summary><div class="t"><b>${esc(x[1])}</b>${has?`<span class="pill g">${f1(sg.ctn)} ${t('ctn')}</span>`:''}<span class="chev">›</span></div><div class="t2">${tags}</div>${line}</summary>${body}</details>`;
+}
+function suggestShop(x,c,date){
+  const dist=D.obs[c].d; const st={}; (D.stock[dist]||[]).forEach(r=>st[r[0]]=r);
+  const vl=Math.max(1,visitsLeft(x[3],date)); let L_=[], nost=[];
+  Object.entries(x[13]||{}).forEach(([k,[rem,norm]])=>{ k=+k; const K=D.keys[k]; const bx=K[3]||0; if(!bx) return;
+    const s_=st[k]; if(s_&&s_[2]>0&&(s_[1]||0)/s_[2]<0.2){ nost.push(k); return; }
+    const capf=(x[4]==='W'&&(K[1]==='Snack Pack'||K[1]==='Munch Pack'))?1:1.5;
+    const q=Math.min(rem/vl, norm*capf); L_.push({k,q,bx}); });
+  let tot=L_.reduce((a,r)=>a+r.q,0); const cap=1.5*(x[14]||0); if(cap>0&&tot>cap){ const f=cap/tot; L_.forEach(r=>r.q*=f); }
+  L_=L_.map(r=>({...r,box:Math.round(r.q*r.bx)})).filter(r=>r.box>=1).map(r=>({...r,ctn:r.box/r.bx})).sort((a,b)=>b.ctn-a.ctn);
+  return {list:L_, ctn:L_.reduce((a,r)=>a+r.ctn,0), nost, vl};
+}
+let SGMAP=new Map(); const sgOf=x=>SGMAP.get(x);
+function planCard(c,rows,pd){
+  const o=D.obs[c]; const tot=rows.reduce((a,r)=>a+(r.sg?r.sg.ctn:0),0); const nshop=rows.filter(r=>r.sg&&r.sg.ctn>0).length;
+  const win=rows.filter(r=>r.win).length; const need=o.need||0;
+  const agg=brandPackRows([c]); const by={}; Object.keys(agg).forEach(k=>{const b=D.keys[k][0];const a=by[b]||(by[b]=[0,0]);a[0]+=agg[k][0];a[1]+=agg[k][1]});
+  const behind=Object.entries(by).filter(([b,a])=>a[0]>=1&&idxOf(a[0],a[1])<0.88).map(([b,a])=>({b,i:idxOf(a[0],a[1]),n:Math.max(0,a[0]-a[1])/D.meta.REM})).sort((x,y)=>y.n-x.n).slice(0,4);
+  const st={}; (D.stock[o.d]||[]).forEach(r=>st[r[0]]=r); const mine=new Set((D.bp[c]||[]).filter(r=>r[1]>0).map(r=>r[0]));
+  const out=[...mine].filter(k=>st[k]&&st[k][2]>0&&(st[k][1]||0)/st[k][2]<0.2).map(k=>D.keys[k][0]+' '+abbr(D.keys[k][1]));
+  const pct=need?tot/need:null;
+  PLANTXT=`${o.n} · ${fmtD(pd)}\n${t('sugg')}: ${f1(tot)} ${t('ctn')} / ${t('need')} ${f1(need)}\n`+rows.filter(r=>r.sg&&r.sg.list.length).slice(0,10).map((r,i)=>`${i+1}. ${r.x[1]}: `+r.sg.list.slice(0,6).map(z=>D.keys[z.k][0]+' '+abbr(D.keys[z.k][1])+' '+z.box).join(', ')).join('\n')+(behind.length?`\n${t('focusb')}: `+behind.map(z=>z.b).join(', '):'')+(out.length?`\n${t('nostock')}: `+out.join(', '):'');
+  return `<div class="card"><h2>${t('plan')} · ${fmtD(pd)}</h2><div class="big">
+   <div class="kpi"><div class="l">${t('sugg')}</div><div class="v">${f1(tot)}</div><div class="s">${nshop} shops · ${t('ctn')}</div></div>
+   <div class="kpi"><div class="l">${t('need')}</div><div class="v">${f1(need)}</div><div class="s"><span class="pill ${pct==null?'n':pct>=1?'g':pct>=0.85?'y':'r'}">${pc(pct)}</span> ${t('covered')}</div></div></div>
+   ${win?`<p class="note"><span class="tag r">${t('wapis')}</span> ${win} shops</p>`:''}
+   ${behind.length?`<p class="note"><b>${t('focusb')}:</b> ${behind.map(z=>`${esc(z.b)} <span class="pill ${cls(z.i)}">${ix(z.i)}</span> ${f1(z.n)}/${L==='en'?'day':'din'}`).join(' · ')}</p>`:''}
+   ${out.length?`<p class="note"><b>${t('nostock')} (${out.length}):</b> ${esc(out.slice(0,6).join(' · '))}${out.length>6?` <details style="display:inline"><summary style="display:inline;cursor:pointer;color:var(--accent)">+${out.length-6}</summary>${esc(out.slice(6).join(' · '))}</details>`:''}</p>`:''}
+   <details class="note"><summary style="cursor:pointer;color:var(--accent)">${t('how')}</summary>${t('sugnote')}</details>${U.r!=='ob'?`<button class="chip" id="cp-plan" style="justify-self:start;margin-top:8px">${t('copyplan')}</button>`:''}</div>`;
+}
+let PLANTXT='';
+const fmtD=d=>d.toLocaleDateString(L==='en'?'en-GB':'en-GB',{weekday:'short',day:'2-digit',month:'short'});
+const abbr=p=>({'Family Pack':'FP','Half Roll':'HR','Snack Pack':'SP','Munch Pack':'MP','Ticky Pack':'TP','Jumbo Pack':'Jumbo'})[p]||p;
+
+function viewStock(){
+  const towns=OPENOB?[D.obs[OPENOB].d]:scopeTowns();
+  const filt=k=>(!SEL.b||D.keys[k][0]===SEL.b)&&(!SEL.p||D.keys[k][1]===SEL.p);
+  const brands=[...new Set(towns.flatMap(tw=>(D.stock[tw]||[]).filter(r=>r[2]>0).map(r=>D.keys[r[0]][0])))];
+  let html=`<div class="card"><label class="f">${t('brand')}<select id="s-b"><option value="">${t('allb')}</option>${brands.map(b=>`<option ${SEL.b===b?'selected':''}>${esc(b)}</option>`).join('')}</select></label>
+    <p class="note">${t('stockt')} · ${D.meta.stk} closing · ${t('days')} = stock ÷ ${L==='en'?'daily target':'roz ka target'}</p></div>`;
+  towns.forEach(tw=>{
+    const rs=(D.stock[tw]||[]).filter(r=>r[2]>0&&filt(r[0])).map(r=>({k:r[0],st:r[1]||0,dt:r[2],d:(r[1]||0)/r[2]})).sort((a,b)=>a.k-b.k);
+    const out=rs.filter(r=>r.st<=0.05).length, low=rs.filter(r=>r.st>0.05&&r.d<2).length;
+    html+=`<div class="card"><h2>${D.towns[tw].n}</h2><p class="note"><span class="pill r">${out}</span> ${t('out')} · <span class="pill y">${low}</span> ${t('low')}</p>
+     <div class="tw"><table class="stk-r"><tr><th>${t('brand')}</th><th>${t('pack')}</th><th>${t('days')}</th><th>${t('ctn')}</th></tr>`+
+     rs.map((r,i)=>`<tr${i&&D.keys[rs[i-1].k][0]!==D.keys[r.k][0]?' style="border-top:2px solid var(--line)"':''}><td>${i&&D.keys[rs[i-1].k][0]===D.keys[r.k][0]?'':'<b>'+esc(D.keys[r.k][0])+'</b>'}</td><td>${abbr(D.keys[r.k][1])}</td><td><span class="pill ${r.st<=0.05?'r':r.d<2?'y':'g'}">${r.st<=0.05?'0':r.d.toFixed(1)}</span></td><td>${f1(r.st)}</td></tr>`).join('')+`</table></div></div>`;
+  });
+  $('#main').innerHTML=html; $('#s-b').onchange=e=>{SEL.b=e.target.value;SEL.p='';render()};
+}
+
+(window.__D?Promise.resolve(window.__D):fetch('data.json').then(r=>r.json())).then(async j=>{
+  if(j.enc){ ENC=j; D=lockedD(); const pw=store.get('pw'); if(U&&pw){ try{ D=await unlock(U,pw); UNL=true; }catch(e){ lockOut(); } } }
+  else D=j;
+  render()}).catch(()=>{$('#main').innerHTML='<div class="card empty">Data could not load. Pull down to refresh.</div>'});
+setLang(L);
+</script>
